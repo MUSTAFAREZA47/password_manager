@@ -1,17 +1,11 @@
 import { HeroSection } from '@/components/HeroSection'
 import { Navbar } from '@/components/Navbar'
 
-import Dashboard from '@/components/Dashboard'
 import RandomPasswordSection from '@/components/RandomPasswordSection'
 import { Footer } from '@/components/Footer'
-
-
-
-
+import Dashboard from '@/components/Dashboard'
 
 export default async function Home() {
-
-
     return (
         <div className="bg-black text-white">
             {/* Navbar */}
@@ -23,10 +17,8 @@ export default async function Home() {
             {/* Random Password Section */}
             <RandomPasswordSection />
 
-            
             {/* Save Password Section */}
             <Dashboard />
-            
 
             {/* Footer */}
             <Footer />
