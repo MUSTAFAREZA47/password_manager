@@ -2,7 +2,7 @@ import { connectToDB } from '@/lib/mongodb'
 import User from '@/models/user.model'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { serialize } from 'cookie'
+import { cookies } from 'next/headers'
 
 export async function POST(req) {
     try {
@@ -40,22 +40,24 @@ export async function POST(req) {
         })
 
         // Set Cookie
-        const cookie = serialize('token', token, {
-            httpOnly: false,
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60, // 7 Days
-            path: '/',
+        const cookieStore = cookies()
+        cookieStore.set('token', token, { httpOnly: false, secure: true }) // 🔹 Set httpOnly to false for client access
+        cookieStore.set('username', user.username, {
+            httpOnly: false, // 🔹 Allow client access
+            secure: true,
+            expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         })
 
         // Send Response
         return new Response(
-            JSON.stringify({ message: 'Login successful', token }),
+            JSON.stringify({
+                message: 'Login successful',
+                token,
+                username: user.username,
+            }),
             {
                 status: 200,
-                headers: {
-                    'Set-Cookie': cookie,
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
             },
         )
     } catch (error) {

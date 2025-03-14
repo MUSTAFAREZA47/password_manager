@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Cookies from 'js-cookie' // ✅ Correct import for frontend
+import Cookies from 'js-cookie'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 
@@ -24,23 +24,21 @@ export default function Login() {
             })
 
             const data = await res.json()
-            console.log(data)
             if (!res.ok) {
                 setError(data.error || 'Login failed')
                 return
             }
 
-            // ✅ Ensure token is stored correctly in cookies
-            Cookies.set('token', data.token, {
-                expires: 7,
-                secure: true,
-                path: '/',
-            })
+            // ✅ Set cookies (client-side)
+            Cookies.set('token', data.token, { expires: 7 })
+            Cookies.set('username', data.username, { expires: 7 })
 
-            // ✅ Delay redirect to ensure cookie is set
+            console.log('Cookies set:', Cookies.get('username')) // Debugging
+
+            // ✅ Wait before redirecting to ensure cookies are stored
             setTimeout(() => {
-                router.replace('/dashboard')
-            }, 100)
+                router.push('/dashboard')
+            }, 500) // Short delay to ensure cookie is saved
         } catch (err) {
             setError('Something went wrong. Please try again.')
             console.error('Login error:', err)
