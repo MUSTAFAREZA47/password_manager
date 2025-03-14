@@ -74,7 +74,7 @@ export default function Login() {
                 </div>
                 {error && <p className="text-red-500 mt-2">{error}</p>}
                 <p className="mt-4">
-                    Don't have an account?{' '}
+                    Don't have an account? &nbsp;
                     <a href="/signup" className="text-blue-400">
                         Sign up
                     </a>
