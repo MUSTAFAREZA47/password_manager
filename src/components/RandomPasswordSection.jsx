@@ -43,7 +43,7 @@ const Button = ({ icon, text }) => (
         {/* Animated Gradient Border */}
         <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
         {/* Button Content */}
-        <span className="inline-flex gap-3 h-full w-full items-center justify-center bg-slate-950 px-5 py-3 text-lg md:text-xl font-medium text-white backdrop-blur-3xl rounded-md">
+        <span className="inline-flex gap-3 h-full w-full items-center justify-center bg-slate-950 px-5 py-3 text-lg md:text-xl font-medium text-white backdrop-blur-3xl">
             {icon}
             <p>{text}</p>
         </span>
