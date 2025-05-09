@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Cookies from 'js-cookie'
+import { FaEdit, FaTrash, FaCopy, FaCheck, FaSignOutAlt } from 'react-icons/fa'
 
 export default function Dashboard() {
     const router = useRouter()
@@ -11,6 +12,7 @@ export default function Dashboard() {
     const [editingId, setEditingId] = useState(null)
     const [error, setError] = useState('')
     const [token, setToken] = useState('')
+    const [copiedId, setCopiedId] = useState(null)
 
     useEffect(() => {
         const savedToken = Cookies.get('token')
@@ -30,7 +32,7 @@ export default function Dashboard() {
             if (!res.ok) throw new Error('Failed to fetch passwords')
 
             const data = await res.json()
-            setPasswords(data) // ✅ No need for decryption
+            setPasswords(data)
         } catch (err) {
             setError('Failed to load passwords')
         }
@@ -67,7 +69,7 @@ export default function Dashboard() {
                 return
             }
 
-            fetchPasswords(token) // ✅ Fetch updated passwords
+            fetchPasswords(token)
             setWebsite('')
             setPassword('')
             setEditingId(null)
@@ -98,7 +100,7 @@ export default function Dashboard() {
                 return
             }
 
-            fetchPasswords(token) // ✅ Fetch updated passwords
+            fetchPasswords(token)
         } catch (err) {
             setError('Failed to delete password. Please try again.')
             console.error('Error:', err)
@@ -110,120 +112,139 @@ export default function Dashboard() {
         router.push('/login')
     }
 
-    const copyToClipboard = (text) => {
+    const copyToClipboard = (text, id) => {
         navigator.clipboard.writeText(text)
-        alert('Password copied to clipboard!')
+        setCopiedId(id)
+        setTimeout(() => setCopiedId(null), 2000)
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-black text-white min-h-screen">
-            <div className="text-center">
-                <h2 className="text-3xl md:text-4xl font-bold mb-2">
-                    📝 Secure Your Passwords – Never Forget Again!
+        <div className="max-w-4xl mx-auto p-6 bg-black text-white min-h-screen animate-fade-in">
+            <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                    📝 Secure Your Passwords
                 </h2>
-                <p className="text-gray-400 max-w-2xl mx-auto mb-10 text-lg">
+                <p className="text-gray-400 max-w-2xl mx-auto text-lg">
                     Store all your important passwords in one secure place.
                     Quickly add, edit, or delete saved credentials with ease.
                 </p>
             </div>
 
             {/* Password Form */}
-            <div className="space-y-4">
-                <input
-                    className="w-full p-3 border border-gray-600 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                    type="text"
-                    placeholder="Website Name"
-                    value={website}
-                    onChange={(e) => setWebsite(e.target.value)}
-                />
-                <div className="flex gap-2">
+            <div className="glass-effect p-6 rounded-xl mb-8 animate-slide-up">
+                <div className="space-y-4">
                     <input
-                        className="w-full p-3 border border-gray-600 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="input-modern"
                         required
                         type="text"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Website Name"
+                        value={website}
+                        onChange={(e) => setWebsite(e.target.value)}
                     />
-                    {/* <button
-                        type="button"
-                        className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white"
-                        onClick={() = ()}
+                    <div className="flex gap-2">
+                        <input
+                            className="input-modern"
+                            required
+                            type="text"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                    </div>
+                    <button
+                        className="btn-primary w-full"
+                        onClick={handleSave}
                     >
-                        {showPassword ? '🙈' : '👁️'}
-                    </button> */}
+                        {editingId ? 'Update Password' : 'Save Password'}
+                    </button>
                 </div>
-                <button
-                    className="w-full bg-blue-500 py-3 rounded-lg hover:bg-blue-600 transition duration-300"
-                    onClick={handleSave}
-                >
-                    {editingId ? 'Update' : 'Save'}
-                </button>
+                {error && (
+                    <p className="text-red-500 mt-4 text-center animate-fade-in">
+                        {error}
+                    </p>
+                )}
             </div>
-            {error && <p className="text-red-500 mt-2">{error}</p>}
 
             {/* Password List */}
-            <div className="mt-8">
-                <h3 className="text-xl font-bold text-white mb-4">
-                    Saved Passwords
+            <div className="mt-8 animate-slide-up">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                    <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                        Saved Passwords
+                    </span>
                 </h3>
                 {passwords.length === 0 ? (
-                    <p>No passwords saved</p>
+                    <div className="text-center py-8 text-gray-400">
+                        No passwords saved yet. Add your first password above!
+                    </div>
                 ) : (
-                    passwords.map((item) => (
-                        <div
-                            key={item._id}
-                            className="p-4 bg-zinc-900 border border-gray-600 rounded-lg shadow-sm"
-                        >
-                            <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center space-y-2 md:space-y-0">
-                                <div>
-                                    <strong className="text-gray-200">
-                                        {item.website}:
-                                    </strong>
-                                    <span className="text-gray-200 ml-2">
-                                        {item.password}
-                                    </span>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    <button
-                                        onClick={() => {
-                                            setWebsite(item.website)
-                                            setPassword(item.password)
-                                            setEditingId(item._id)
-                                        }}
-                                        className="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition duration-300 text-sm"
-                                    >
-                                        ✏️ Edit
-                                    </button>
-                                    <button
-                                        className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 text-sm"
-                                        onClick={() => handleDelete(item._id)}
-                                    >
-                                        🗑️ Delete
-                                    </button>
-                                    <button
-                                        onClick={() =>
-                                            copyToClipboard(item.password)
-                                        }
-                                        className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 text-sm"
-                                    >
-                                        📋 Copy
-                                    </button>
+                    <div className="space-y-4">
+                        {passwords.map((item) => (
+                            <div
+                                key={item._id}
+                                className="glass-effect p-4 rounded-lg hover:shadow-lg transition-all duration-300"
+                            >
+                                <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4">
+                                    <div className="flex-1">
+                                        <h4 className="text-lg font-semibold text-blue-400">
+                                            {item.website}
+                                        </h4>
+                                        <p className="text-gray-300 mt-1 font-mono">
+                                            {item.password}
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setWebsite(item.website)
+                                                setPassword(item.password)
+                                                setEditingId(item._id)
+                                            }}
+                                            className="btn-secondary flex items-center gap-2"
+                                        >
+                                            <FaEdit />
+                                            <span>Edit</span>
+                                        </button>
+                                        <button
+                                            className="btn-danger flex items-center gap-2"
+                                            onClick={() => handleDelete(item._id)}
+                                        >
+                                            <FaTrash />
+                                            <span>Delete</span>
+                                        </button>
+                                        <button
+                                            onClick={() => copyToClipboard(item.password, item._id)}
+                                            className="btn-primary flex items-center gap-2"
+                                        >
+                                            {copiedId === item._id ? (
+                                                <>
+                                                    <FaCheck />
+                                                    <span>Copied!</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FaCopy />
+                                                    <span>Copy</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))
+                        ))}
+                    </div>
                 )}
             </div>
 
             {/* Logout Button */}
-            <button
-                className="mt-6 p-2 bg-red-500 rounded hover:bg-red-600"
-                onClick={handleLogout}
-            >
-                Logout
-            </button>
+            <div className="mt-8 text-center">
+                <button
+                    className="btn-danger flex items-center gap-2 mx-auto"
+                    onClick={handleLogout}
+                >
+                    <FaSignOutAlt />
+                    <span>Logout</span>
+                </button>
+            </div>
         </div>
     )
 }

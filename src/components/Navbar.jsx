@@ -9,62 +9,79 @@ import { FaUser } from 'react-icons/fa'
 export function Navbar() {
     const router = useRouter()
     const [user, setUser] = useState(null)
+    const [isScrolled, setIsScrolled] = useState(false)
 
     useEffect(() => {
-        const username = Cookies.get('username') // Fetch username from cookies
+        const username = Cookies.get('username')
         if (username) {
             setUser(username)
         }
-    }, [])
 
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 20)
+        }
+
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     const handleLogout = () => {
         Cookies.remove('token')
-        Cookies.remove('username') // Remove username on logout
+        Cookies.remove('username')
         setUser(null)
-        router.push('/login') // Redirect to login page
+        router.push('/login')
     }
 
     return (
-        <nav className="fixed top-0 left-0 w-full bg-opacity-50 backdrop-blur-lg text-white p-4 shadow-md z-50 border-b border-white/10">
-            <div className="container mx-auto flex justify-between items-center">
-                {/* Logo */}
-                <Link href="/" className="flex gap-3 items-center">
-                    <Image
-                        src="/logo.png"
-                        alt="logo"
-                        width={40}
-                        height={40}
-                        className="w-8 md:w-10"
-                    />
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl uppercase font-extrabold">
-                        Lokify
-                    </h1>
-                </Link>
-
-                {/* Right Side */}
-                <div>
-                    {user ? (
-                        <div className="flex items-center gap-2">
-                            <div className="bg-blue-600 hover:bg-blue-500 flex gap-1 text-xs text-white px-2 py-1 rounded-md">
-                                <FaUser />
-                                <span className="font-medium">{user}</span>
-                            </div>
-                            <button
-                                onClick={handleLogout}
-                                className="bg-red-600 hover:bg-red-500 text-xs text-white px-2 py-1 rounded-md"
-                            >
-                                Logout
-                            </button>
+        <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+            isScrolled 
+                ? 'bg-black/80 backdrop-blur-lg shadow-lg' 
+                : 'bg-transparent'
+        }`}>
+            <div className="container mx-auto px-4 py-4">
+                <div className="flex justify-between items-center">
+                    {/* Logo */}
+                    <Link 
+                        href="/" 
+                        className="flex gap-3 items-center group animate-fade-in"
+                    >
+                        <div className="relative w-10 h-10 transition-transform duration-300 group-hover:scale-110">
+                            <Image
+                                src="/logo.png"
+                                alt="logo"
+                                fill
+                                className="object-contain"
+                            />
                         </div>
-                    ) : (
-                        <Link
-                            href="/login"
-                            className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-md"
-                        >
-                            Login
-                        </Link>
-                    )}
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+                            Lokify
+                        </h1>
+                    </Link>
+
+                    {/* Right Side */}
+                    <div className="animate-fade-in">
+                        {user ? (
+                            <div className="flex items-center gap-4">
+                                <div className="glass-effect px-4 py-2 rounded-full flex items-center gap-2">
+                                    <FaUser className="text-blue-400" />
+                                    <span className="font-medium text-sm">{user}</span>
+                                </div>
+                                <button
+                                    onClick={handleLogout}
+                                    className="btn-danger text-sm"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        ) : (
+                            <Link
+                                href="/login"
+                                className="btn-primary text-sm"
+                            >
+                                Login
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </div>
         </nav>
